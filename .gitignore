@@ -1,0 +1,5 @@
+Acme-CPANAuthors-GitHub-*
+Makefile
+Makefile.old
+blib/
+pm_to_blib
