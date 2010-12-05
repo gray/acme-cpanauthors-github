@@ -50,7 +50,6 @@ for my $dist ($packages->latest_distributions) {
     next unless $repo;
 
     my $url = 'HASH' eq ref $repo ? $repo->{url} : $repo;
-    next unless $url;
     next unless $url and $url =~ m[^(?:git|https?)://github\.com/]i;
 
     $authors{$cpanid} = $authors->author($cpanid)->name;
