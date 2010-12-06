@@ -143,7 +143,7 @@ L<http://rt.cpan.org/Public/Dist/Display.html?Name=Acme-CPANAuthors-GitHub>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Acme-CPANAuthors-GitHub>
+L<http://search.cpan.org/dist/Acme-CPANAuthors-GitHub/>
 
 =back
 
