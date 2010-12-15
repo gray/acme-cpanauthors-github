@@ -18,7 +18,10 @@ my $file = catfile(
 my $packages = Acme::CPANAuthors::Utils::cpan_packages();
 my $authors  = Acme::CPANAuthors::Utils::cpan_authors();
 
-my $ua  = LWP::UserAgent->new(env_proxy => 1);
+my $ua = LWP::UserAgent->new(
+    env_proxy  => 1,
+    user_agent => 'Acme::CPANAuthors::GitHub',
+);
 
 sub _uri {
     return sprintf "http://search.cpan.org/meta/%s/META.json", $_[0];
