@@ -19,8 +19,8 @@ my $packages = Acme::CPANAuthors::Utils::cpan_packages();
 my $authors  = Acme::CPANAuthors::Utils::cpan_authors();
 
 my $ua = LWP::UserAgent->new(
-    env_proxy  => 1,
-    user_agent => 'Acme::CPANAuthors::GitHub',
+    agent     => 'Acme::CPANAuthors::GitHub',
+    env_proxy => 1,
 );
 
 sub _uri {
