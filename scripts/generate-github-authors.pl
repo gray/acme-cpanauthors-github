@@ -8,7 +8,7 @@ use File::Spec::Functions qw(catfile splitpath updir);
 use LWP::UserAgent;
 use JSON;
 
-my $VERSION = '0.01';
+my $VERSION = '0.02';
 
 my $file = catfile(
     (splitpath(realpath __FILE__))[0, 1], updir,
