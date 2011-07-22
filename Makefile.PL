@@ -15,11 +15,8 @@ my %conf = (
         'Test::More' => 0.82,
     },
     META_MERGE     => {
-        resources  => {
-            repository => {
-                url => 'git://github.com/gray/acme-cpanauthors-github.git',
-                web => 'http://github.com/gray/acme-cpanauthors-github',
-            },
+        resources => {
+            repository => 'http://github.com/gray/acme-cpanauthors-github',
         },
     },
     dist           => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
