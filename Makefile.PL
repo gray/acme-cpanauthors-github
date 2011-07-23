@@ -8,19 +8,16 @@ my %conf = (
     LICENSE        => 'perl',
     VERSION_FROM   => 'lib/Acme/CPANAuthors/GitHub.pm',
     ABSTRACT_FROM  => 'lib/Acme/CPANAuthors/GitHub.pm',
-    PREREQ_PM      => {
-        'Acme::CPANAuthors' => 0.14,
-    },
-    BUILD_REQUIRES => {
-        'Test::More' => 0.82,
-    },
+    PREREQ_PM      => { 'Acme::CPANAuthors' => 0.14, },
+    BUILD_REQUIRES => { 'Test::More' => 0.82, },
     META_MERGE     => {
+        no_index  => { directory => 'scripts' },
         resources => {
             repository => 'http://github.com/gray/acme-cpanauthors-github',
         },
     },
-    dist           => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean          => { FILES => 'Acme-CPANAuthors-GitHub-*' },
+    dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    clean => { FILES    => 'Acme-CPANAuthors-GitHub-*' },
 );
 
 my $eumm_version =  do {
