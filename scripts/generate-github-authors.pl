@@ -202,4 +202,3 @@ under the same terms as Perl itself.
 gray, <gray at cpan.org>
 
 =cut
-__EOF__
