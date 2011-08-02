@@ -4,78 +4,118 @@ use warnings;
 
 use Acme::CPANAuthors::Utils;
 use Cwd qw(realpath);
+use ElasticSearch;
 use File::Spec::Functions qw(catfile splitpath updir);
-use LWP::UserAgent;
 use JSON;
 
 my $VERSION = '0.02';
 
-my $file = catfile(
-    (splitpath(realpath __FILE__))[0, 1], updir,
-    qw(lib Acme CPANAuthors GitHub.pm)
+my $es = ElasticSearch->new(
+    servers    => 'api.metacpan.org',
+    no_refresh => 1,
 );
 
-my $packages = Acme::CPANAuthors::Utils::cpan_packages();
-my $authors  = Acme::CPANAuthors::Utils::cpan_authors();
+my (%authors, %names);
 
-my $ua = LWP::UserAgent->new(
-    agent     => 'Acme::CPANAuthors::GitHub',
-    env_proxy => 1,
-);
+# TODO: verify the document mapping (data structure) has not changed.
 
-sub _uri {
-    return sprintf "http://search.cpan.org/meta/%s/META.json", $_[0];
+process_authors();
+process_releases();
+write_file();
+
+exit;
+
+
+sub process_authors {
+    my $req = $es->scrolled_search(
+        q           => '*',
+        search_type => 'scan',
+        scroll      => '5m',
+        index       => 'v0',
+        type        => 'author',
+        size        => 1_000,
+    );
+
+    while (my $res = $req->next) {
+        my $source = $res->{_source};
+        my ($pauseid, $name) = @$source{qw(pauseid name)};
+        next unless $pauseid;
+
+        $names{$pauseid} = $name || '';
+
+        for my $website (@{$source->{website}}) {
+            next unless is_github_site($website);
+            $authors{$pauseid} = $name;
+            last;
+        }
+
+        for my $profile (@{$source->{profile}}) {
+            next unless 'github' eq $profile->{name};
+            $authors{$pauseid} = $name || '';
+            last;
+        }
+    }
 }
 
-my $count = 0;
-my $total = $packages->latest_distribution_count;
-my %authors;
+sub process_releases {
+    my $req = $es->scrolled_search(
+        q           => 'status:latest',
+        fields      => [qw(author homepage url web)],
+        search_type => 'scan',
+        scroll      => '5m',
+        index       => 'v0',
+        type        => 'release',
+        size        => 1_000,
+    );
 
-$| = 1;
+    while (my $res = $req->next) {
+        my $author = delete $res->{fields}{author};
+        next if exists $authors{$author};
 
-for my $dist ($packages->latest_distributions) {
-    printf "%s/%s (%s%%)\r", ++$count, $total,
-        sprintf '%.2f', 100 *  $count / $total;
-
-    next unless defined $dist->dist;
-
-    my $cpanid = $dist->cpanid;
-    next if exists $authors{$cpanid};
-
-    my $res = $ua->get(_uri($dist->dist));
-    next if $res->is_error;
-
-    my $data = eval { from_json($res->decoded_content) };
-    next unless $data;
-
-    my $resources = $data->{resources} or next;
-    my $repo = $resources->{repository} || $resources->{x_Repository};
-    next unless $repo;
-
-    my $url = 'HASH' eq ref $repo ? ($repo->{url} || $repo->{web}) : $repo;
-    next unless $url and $url =~ m[^(?:git|https?)://github\.com/]i;
-
-    $authors{$cpanid} = $authors->author($cpanid)->name;
+        for my $url (values %{$res->{fields}}) {
+            next unless is_github_site($url);
+            $authors{$author} = $names{$author};
+            last;
+        }
+    }
 }
 
-open my $fh, '>', $file or die "$file: $!";
-print $fh <<"__EOF__";
-package Acme::CPANAuthors::GitHub;
-
-use strict;
-use warnings;
-
-our \$VERSION = '$VERSION';
-\$VERSION = eval \$VERSION;
-
-use Acme::CPANAuthors::Register(
-__EOF__
-
-for my $cpanid (sort keys %authors) {
-    printf $fh "    q(%s) => q(%s),\n", $cpanid, $authors{$cpanid};
+sub is_github_site {
+    return $_[0]
+        && $_[0] =~ m[
+            ^ (?:(?:git | https?)://)? (?:[^.]+\.)? github\.com/
+        ]ix;
 }
 
-print $fh <<'__EOF__';
+sub write_file {
+    my $file = catfile(
+        (splitpath(realpath __FILE__))[0, 1], updir,
+        qw(lib Acme CPANAuthors GitHub.pm)
+    );
+
+    open my $fh, '>:encoding(utf-8)', $file or die "$file: $!";
+    (my $header =<< "    __HEADER__") =~ s/^ +//gm;
+        package Acme::CPANAuthors::GitHub;
+
+        use strict;
+        use warnings;
+        use utf8;
+
+        our \$VERSION = '$VERSION';
+        \$VERSION = eval \$VERSION;
+
+        use Acme::CPANAuthors::Register(
+    __HEADER__
+    print $fh $header;
+    for my $cpanid (sort keys %authors) {
+        printf $fh "    q(%s) => q(%s),\n", $cpanid, $authors{$cpanid};
+    }
+    print $fh <DATA>;
+    close $fh;
+}
+
+
+__DATA__
 );
 
 
@@ -163,4 +203,3 @@ gray, <gray at cpan.org>
 
 =cut
 __EOF__
-close $fh;
