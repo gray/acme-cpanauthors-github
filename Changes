@@ -1,5 +1,10 @@
 Revision history for Acme-CPANAuthors-GitHub
 
+0.03  Tue Aug  2 16:25:27 UTC 2011
+    - Converted from using PAUSE API to MetaCPAN.
+    - Changed the author name to use the UTF-8 version.
+    - Update authors.
+
 0.02  Tue Feb 15 11:45:14 UTC 2011
     - Update authors.
 
