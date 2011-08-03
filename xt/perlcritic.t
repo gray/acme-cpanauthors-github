@@ -7,4 +7,4 @@ eval { require Test::Perl::Critic; 1 } or do {
 };
 Test::Perl::Critic->import( -profile => 'xt/perlcriticrc' );
 
-all_critic_ok(qw( ex lib t xt ));
+all_critic_ok(qw( lib scripts t xt ));
