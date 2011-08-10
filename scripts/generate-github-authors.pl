@@ -6,7 +6,6 @@ use Acme::CPANAuthors::Utils;
 use Cwd qw(realpath);
 use ElasticSearch;
 use File::Spec::Functions qw(catfile splitpath updir);
-use JSON;
 
 my $VERSION = '0.03';
 
