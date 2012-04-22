@@ -12,6 +12,7 @@ my $VERSION = '0.06';
 my $es = ElasticSearch->new(
     servers    => 'api.metacpan.org',
     no_refresh => 1,
+    deflate    => 1,
 );
 
 my (%authors, %names);
@@ -27,11 +28,10 @@ exit;
 
 sub process_authors {
     my $req = $es->scrolled_search(
+        index       => 'author',
         q           => '*',
         search_type => 'scan',
         scroll      => '5m',
-        index       => 'v0',
-        type        => 'author',
         size        => 1_000,
     );
 
@@ -58,12 +58,11 @@ sub process_authors {
 
 sub process_releases {
     my $req = $es->scrolled_search(
+        index       => 'release',
         q           => 'status:latest',
         fields      => [qw(author homepage url web)],
         search_type => 'scan',
         scroll      => '5m',
-        index       => 'v0',
-        type        => 'release',
         size        => 1_000,
     );
 
