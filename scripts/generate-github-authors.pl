@@ -190,7 +190,7 @@ L<http://search.cpan.org/dist/Acme-CPANAuthors-GitHub/>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010-2012 gray <gray at cpan.org>, all rights reserved.
+Copyright (C) 2010-2013 gray <gray at cpan.org>, all rights reserved.
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
