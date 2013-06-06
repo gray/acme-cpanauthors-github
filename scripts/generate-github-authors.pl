@@ -7,7 +7,7 @@ use Cwd qw(realpath);
 use ElasticSearch;
 use File::Spec::Functions qw(catfile splitpath updir);
 
-my $VERSION = '0.06';
+my $VERSION = '0.07';
 
 my $es = ElasticSearch->new(
     servers    => 'api.metacpan.org',
