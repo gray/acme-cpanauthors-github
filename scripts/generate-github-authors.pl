@@ -7,7 +7,7 @@ use Cwd qw(realpath);
 use Search::Elasticsearch;
 use File::Spec::Functions qw(catfile splitpath updir);
 
-my $VERSION = '0.07';
+my $VERSION = '0.08';
 
 my $es = Search::Elasticsearch->new(
     nodes            => 'api.metacpan.org',
