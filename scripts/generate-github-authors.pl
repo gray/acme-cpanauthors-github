@@ -4,15 +4,16 @@ use warnings;
 
 use Acme::CPANAuthors::Utils;
 use Cwd qw(realpath);
-use ElasticSearch;
+use Search::Elasticsearch;
 use File::Spec::Functions qw(catfile splitpath updir);
 
 my $VERSION = '0.07';
 
-my $es = ElasticSearch->new(
-    servers    => 'api.metacpan.org',
-    no_refresh => 1,
-    deflate    => 1,
+my $es = Search::Elasticsearch->new(
+    nodes            => 'api.metacpan.org',
+    cxn_pool         => 'Static::NoPing',
+    send_get_body_as => 'POST',
+    deflate          => 1,
 );
 
 my (%authors, %names);
@@ -27,7 +28,7 @@ exit;
 
 
 sub process_authors {
-    my $req = $es->scrolled_search(
+    my $req = $es->scroll_helper(
         index       => 'author',
         q           => '*',
         search_type => 'scan',
@@ -57,7 +58,7 @@ sub process_authors {
 }
 
 sub process_releases {
-    my $req = $es->scrolled_search(
+    my $req = $es->scroll_helper(
         index       => 'release',
         q           => 'status:latest',
         fields      => [qw(author homepage url web)],
