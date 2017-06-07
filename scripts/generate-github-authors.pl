@@ -8,7 +8,7 @@ use Cwd qw(realpath);
 use MetaCPAN::Client;
 use FindBin;
 
-my $VERSION = '0.08';
+my $VERSION = '0.09';
 
 my (%name, %github);
 process_authors();
